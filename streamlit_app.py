@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import ttest_ind, pearsonr
 
 # Title and Introduction
-st.markdown("# Introduction\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.")
+st.markdown("# Work, Stress and Life Satisfaction Study\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.")
 
 # Data Source
-st.markdown("## Data Source\n\n---\n\n**Study**: Work, Stress, and Life Satisfaction.\n\n**Institution**: Szechenyi Istvan Egyetem (Hungary).\n\n**Published**: 8 August 2024.\n\n**Categories**: Psychology, Adult, Workplace, Job Stress, Life Satisfaction, Exercise Psychology.\n\nDOI: 10.17632/hsgymx6zf8.2\n\n---\n\n")
+st.markdown("### Data Source\n\n---\n\n**Study**: Work, Stress, and Life Satisfaction.\n\n**Institution**: Szechenyi Istvan Egyetem (Hungary).\n\n**Published**: 8 August 2024.\n\n**Categories**: Psychology, Adult, Workplace, Job Stress, Life Satisfaction, Exercise Psychology.\n\nDOI: 10.17632/hsgymx6zf8.2\n\n---\n\n")
 
 
 
@@ -105,9 +105,8 @@ ax.set_ylabel("Stress Level")
 ax.set_title("Relationship Between Stress and Income")
 st.pyplot(fig)
 
+# Life satisfaction vs income
 
-
-st.markdown("### Life Satisfaction & Income Analysis")
 # Compute correlation
 corr_coeff, p_value = pearsonr(df["LifeSatisf"], df["income1to7"])
 
@@ -133,7 +132,181 @@ st.pyplot(fig)
 
 
 
+# Life Satisfaction vs Stress
 
+st.markdown("### Life Satisfaction & Stress")
+# Compute correlation
+corr_coeff, p_value = pearsonr(df["Stress"], df["LifeSatisf"])
+
+# Display correlation results
+st.header("Correlation Between Stress and Life Satisfaction")
+st.write(f"**Pearson's Correlation Coefficient:** {corr_coeff:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation
+if p_value < 0.05:
+    st.success("There is a statistically significant correlation between stress and life satisfaction.")
+else:
+    st.info("There is no significant correlation between stress and life satisfaction.")
+
+# Scatterplot Visualization
+st.header("Scatterplot: Stress vs. Life Satisfaction")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.regplot(x=df["Stress"], y=df["LifeSatisf"], ax=ax, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+ax.set_xlabel("Stress Level")
+ax.set_ylabel("Life Satisfaction Level")
+ax.set_title("Relationship Between Stress and Life Satisfaction")
+st.pyplot(fig)
+
+# ------------------ Employee vs. Manager Analysis -------------------- #
+
+# Employment type vs Stress
+st.markdown("### (C) Employment Type Analysis - Stress Levels")
+
+# Split into two groups
+employees = df[df["JobPositionEmployeeManager"] == 1]["Stress"]
+managers = df[df["JobPositionEmployeeManager"] == 2]["Stress"]
+
+# Perform t-test
+t_stat, p_value = ttest_ind(employees, managers, equal_var=False)
+
+# Display t-test results
+st.header("Stress Levels Between Employees and Managers")
+st.write(f"**T-test Statistic:** {t_stat:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation
+if p_value < 0.05:
+    st.success("There is a statistically significant difference in stress levels between employees and managers.")
+else:
+    st.info("There is no significant difference in stress levels between employees and managers.")
+
+# Boxplot Visualization
+st.header("Boxplot: Stress Levels of Employees vs. Managers")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["JobPositionEmployeeManager"], y=df["Stress"], ax=ax, palette=["blue", "orange"])
+ax.set_xticklabels(["Employee", "Manager"])
+ax.set_xlabel("Job Position")
+ax.set_ylabel("Stress Level")
+ax.set_title("Comparison of Stress Levels Between Employees and Managers")
+st.pyplot(fig)
+
+# Employment type vs Life Satisfaction
+
+st.markdown("### Employment Type Analysis - Life Satisfaction")
+
+# Split into two groups
+employees_ls = df[df["JobPositionEmployeeManager"] == 1]["LifeSatisf"]
+managers_ls = df[df["JobPositionEmployeeManager"] == 2]["LifeSatisf"]
+
+# Perform t-test
+t_stat_ls, p_value_ls = ttest_ind(employees_ls, managers_ls, equal_var=False)
+
+# Display t-test results
+st.header("Life Satisfaction Between Employees and Managers")
+st.write(f"**T-test Statistic:** {t_stat_ls:.3f}")
+st.write(f"**P-value:** {p_value_ls:.5f}")
+
+# Interpretation
+if p_value_ls < 0.05:
+    st.success("There is a statistically significant difference in life satisfaction between employees and managers.")
+else:
+    st.info("There is no significant difference in life satisfaction between employees and managers.")
+
+# Boxplot Visualization
+st.header("Boxplot: Life Satisfaction of Employees vs. Managers")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["JobPositionEmployeeManager"], y=df["LifeSatisf"], ax=ax, palette=["blue", "orange"])
+ax.set_xticklabels(["Employee", "Manager"])
+ax.set_xlabel("Job Position")
+ax.set_ylabel("Life Satisfaction Score")
+ax.set_title("Comparison of Life Satisfaction Between Employees and Managers")
+st.pyplot(fig)
+
+
+
+# ------------------ Perceived Health vs. Stress levels -------------------- #
+
+# Perceived Health vs Stress
+st.markdown("### (D) Perceived Health - Stress Levels")
+
+
+
+# Calculate Pearson correlation
+correlation, p_value = pearsonr(df["Stress"], df["perceivedhealth1to7"])
+
+# Display correlation result
+st.header("Relationship Between Stress and Perceived Health")
+st.write(f"**Pearson Correlation Coefficient:** {correlation:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation
+if p_value < 0.05:
+    st.success("There is a statistically significant relationship between stress levels and perceived health.")
+else:
+    st.info("There is no significant correlation between stress levels and perceived health.")
+
+# Scatterplot Visualization
+st.header("Scatterplot: Stress vs. Perceived Health")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.scatterplot(x=df["perceivedhealth1to7"], y=df["Stress"], ax=ax, alpha=0.6, color="purple")
+ax.set_xlabel("Perceived Health (1 = Least Healthy, 7 = Most Healthy)")
+ax.set_ylabel("Stress Score")
+ax.set_title("Scatterplot of Stress vs. Perceived Health")
+st.pyplot(fig)
+
+# Boxplot Visualization
+st.header("Boxplot: Stress Across Perceived Health Levels")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["perceivedhealth1to7"], y=df["Stress"], ax=ax, palette="coolwarm")
+ax.set_xlabel("Perceived Health (1 = Least Healthy, 7 = Most Healthy)")
+ax.set_ylabel("Stress Score")
+ax.set_title("Comparison of Stress Across Different Perceived Health Levels")
+st.pyplot(fig)
+
+
+
+# Perceived Health Vs. Life Satisfaction
+
+# Calculate Pearson correlation
+correlation_health_ls, p_value_health_ls = pearsonr(df["LifeSatisf"], df["perceivedhealth1to7"])
+
+# Display correlation result
+st.header("Relationship Between Life Satisfaction and Perceived Health")
+st.write(f"**Pearson Correlation Coefficient:** {correlation_health_ls:.3f}")
+st.write(f"**P-value:** {p_value_health_ls:.5f}")
+
+# Interpretation
+if p_value_health_ls < 0.05:
+    st.success("There is a statistically significant relationship between life satisfaction and perceived health.")
+else:
+    st.info("There is no significant correlation between life satisfaction and perceived health.")
+
+# Scatterplot Visualization
+st.header("Scatterplot: Life Satisfaction vs. Perceived Health")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.scatterplot(x=df["perceivedhealth1to7"], y=df["LifeSatisf"], ax=ax, alpha=0.6, color="teal")
+ax.set_xlabel("Perceived Health (1 = Least Healthy, 7 = Most Healthy)")
+ax.set_ylabel("Life Satisfaction Score")
+ax.set_title("Scatterplot of Life Satisfaction vs. Perceived Health")
+st.pyplot(fig)
+
+# Boxplot Visualization
+st.header("Boxplot: Life Satisfaction Across Perceived Health Levels")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["perceivedhealth1to7"], y=df["LifeSatisf"], ax=ax, palette="viridis")
+ax.set_xlabel("Perceived Health (1 = Least Healthy, 7 = Most Healthy)")
+ax.set_ylabel("Life Satisfaction Score")
+ax.set_title("Comparison of Life Satisfaction Across Different Perceived Health Levels")
+st.pyplot(fig)
+
+
+
+
+
+
+
+# ------------------ Steps to Reproduce Study -------------------- #
 
 # Steps to reproduce
 st.markdown("#### Steps to reproduce:\n\n---\n\nUse the SWL and PSS (Satisfaction with Life - 5 items and Perceived Stress Scale - 14 items) and ask about childhood and current exercise habits, and workplace employee numbers in 4 categories (up to 10, 11-100, 101-1,000, and over 1,000). If needed, you can combine these into large (> 100) and small (< 100) companies. Collect demographic information such as age, gender, education level (basic/elementary, high school, university), perceived health on a 7-point scale, and perceived income on a 7-point scale. Ask for employment status in two categorical terms: employee or manager. Run chi-square and t-tests for group comparisons. Correlations/regression are feasible if the research question warrants it.")
