@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.stats import ttest_ind, pearsonr
+from scipy.stats import ttest_ind, pearsonr, f_oneway, chi2_contingency
 
 # Title and Introduction
 st.markdown("# Work, Stress and Life Satisfaction Study\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.")
@@ -299,6 +299,93 @@ ax.set_xlabel("Perceived Health (1 = Least Healthy, 7 = Most Healthy)")
 ax.set_ylabel("Life Satisfaction Score")
 ax.set_title("Comparison of Life Satisfaction Across Different Perceived Health Levels")
 st.pyplot(fig)
+
+# ------------------ Exercise Habits vs. Stress levels -------------------- #
+
+# Exercise Habits vs Stress
+st.markdown("### (E) Exercise Habits - Stress Levels")
+
+# Boxplot/Violin plot
+st.header("Stress Across Exercise Habits")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["LeisureCompOrNoSport"], y=df["Stress"], ax=ax, palette="muted")
+ax.set_xlabel("Exercise Habits (1=Leisure, 2=Competitive, 3=No Sport)")
+ax.set_ylabel("Stress Level")
+ax.set_title("Comparison of Stress Across Exercise Habits")
+st.pyplot(fig)
+
+# ANOVA to test for significant difference
+leisure = df[df["LeisureCompOrNoSport"] == 1]["Stress"]
+competitive = df[df["LeisureCompOrNoSport"] == 2]["Stress"]
+no_sport = df[df["LeisureCompOrNoSport"] == 3]["Stress"]
+
+f_statistic, p_value = f_oneway(leisure, competitive, no_sport)
+
+# Display result
+st.write(f"**F-statistic:** {f_statistic:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation of ANOVA results
+if p_value < 0.05:
+    st.success("There is a significant difference in stress levels based on exercise habits.")
+else:
+    st.info("There is no significant difference in stress levels based on exercise habits.")
+
+
+# exercise Habits vs. Life Satisfaction
+
+# Boxplot/Violin plot to compare life satisfaction across exercise habits
+st.header("Life Satisfaction Across Exercise Habits")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["LeisureCompOrNoSport"], y=df["LifeSatisf"], ax=ax, palette="muted")
+ax.set_xlabel("Exercise Habits (1=Leisure, 2=Competitive, 3=No Sport)")
+ax.set_ylabel("Life Satisfaction Score")
+ax.set_title("Comparison of Life Satisfaction Across Exercise Habits")
+st.pyplot(fig)
+
+# ANOVA to test for significant difference in life satisfaction
+leisure = df[df["LeisureCompOrNoSport"] == 1]["LifeSatisf"]
+competitive = df[df["LeisureCompOrNoSport"] == 2]["LifeSatisf"]
+no_sport = df[df["LeisureCompOrNoSport"] == 3]["LifeSatisf"]
+
+f_statistic, p_value = f_oneway(leisure, competitive, no_sport)
+
+# Display result
+st.write(f"**F-statistic:** {f_statistic:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation of ANOVA results
+if p_value < 0.05:
+    st.success("There is a significant difference in life satisfaction based on exercise habits.")
+else:
+    st.info("There is no significant difference in life satisfaction based on exercise habits.")
+
+# Correlation between childhood sports and current exercise habits
+# Bar plot to compare current exercise habits based on childhood sports history
+st.header("Current Exercise Habits vs Childhood Sports History")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.countplot(data=df, x="LeisureCompOrNoSport", hue="Childhood7to16SportsYesNo", ax=ax, palette="muted")
+ax.set_xlabel("Current Exercise Habits (1=Leisure, 2=Competitive, 3=No Sport)")
+ax.set_ylabel("Count")
+ax.set_title("Comparison of Current Exercise Habits by Childhood Sports History")
+st.pyplot(fig)
+
+# Chi-Square Test to see if childhood sports history and current exercise habits are related
+contingency_table = pd.crosstab(df['Childhood7to16SportsYesNo'], df['LeisureCompOrNoSport'])
+
+# Perform the Chi-Square test
+chi2_stat, p_value, dof, expected = chi2_contingency(contingency_table)
+
+# Display result
+st.write(f"**Chi-Square Statistic:** {chi2_stat:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation of results
+if p_value < 0.05:
+    st.success("There is a significant association between childhood sports history and current exercise habits.")
+else:
+    st.info("There is no significant association between childhood sports history and current exercise habits.")
+
 
 
 
