@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, pearsonr
 
 # Title and Introduction
 st.markdown("# Introduction\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.")
@@ -27,6 +27,9 @@ st.markdown("**Cleaned Dataset Preview**:")
 
 st.write(df.head())
 st.markdown("\n\n---\n\n")
+
+
+# ------------------ Company Size Analysis -------------------- #
 
 # Analyze company size and well-being with t-test 
 st.markdown("### (A) Company Size & Well-Being (Stress & Life Satisfaction)")
@@ -76,13 +79,57 @@ ax.legend()
 st.pyplot(fig)
 
 
+# ------------------ Income Analysis -------------------- #
+st.markdown("### (B) Stress & Income Analysis")
+
+# Compute correlation
+corr_coeff, p_value = pearsonr(df["Stress"], df["income1to7"])
+
+# Display correlation results
+st.header("Correlation Between Stress and Income")
+st.write(f"**Pearson's Correlation Coefficient:** {corr_coeff:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
+
+# Interpretation
+if p_value < 0.05:
+    st.success("There is a statistically significant correlation between stress and income.")
+else:
+    st.info("There is no significant correlation between stress and income.")
+
+# Scatterplot Visualization
+st.header("Scatterplot: Stress vs. Income")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.regplot(x=df["income1to7"], y=df["Stress"], ax=ax, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+ax.set_xlabel("Income Level (1 = Low, 7 = High)")
+ax.set_ylabel("Stress Level")
+ax.set_title("Relationship Between Stress and Income")
+st.pyplot(fig)
 
 
 
+st.markdown("### Life Satisfaction & Income Analysis")
+# Compute correlation
+corr_coeff, p_value = pearsonr(df["LifeSatisf"], df["income1to7"])
 
+# Display correlation results
+st.header("Correlation Between Life Satisfaction and Income")
+st.write(f"**Pearson's Correlation Coefficient:** {corr_coeff:.3f}")
+st.write(f"**P-value:** {p_value:.5f}")
 
+# Interpretation
+if p_value < 0.05:
+    st.success("There is a statistically significant correlation between life satisfaction and income.")
+else:
+    st.info("There is no significant correlation between life satisfaction and income.")
 
-
+# Scatterplot Visualization
+st.header("Scatterplot: Life Satisfaction vs. Income")
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.regplot(x=df["income1to7"], y=df["LifeSatisf"], ax=ax, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+ax.set_xlabel("Income Level (1 = Low, 7 = High)")
+ax.set_ylabel("Life Satisfaction Level")
+ax.set_title("Relationship Between Life Satisfaction and Income")
+st.pyplot(fig)
 
 
 
