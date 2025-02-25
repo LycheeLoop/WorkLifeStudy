@@ -3,7 +3,18 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import ttest_ind, pearsonr, f_oneway, chi2_contingency
+from streamlit_lottie import st_lottie
+import requests
 
+# Function to load Lottie animation from URL
+def load_lottie_url(url:str):
+    return url
+
+# Load your Lottie animation from a URL
+lottie_url = "https://lottie.host/6f5b51d6-63e7-4fb8-9a09-c81a873648d6/0lOEKzDF98.json"  # Example URL
+
+# Display the animation in Streamlit
+st_lottie(load_lottie_url(lottie_url), speed=1, width=600, height=400, key="lottie1")
 
 
 # ------------ Introduction ----------------#
@@ -13,6 +24,42 @@ df = pd.read_excel("Cleaned_Work_life.xlsx")
 # Title and Introduction
 st.markdown("# Work, Stress and Life Satisfaction Study\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.\n\n---\n\n\n\n---\n\n")
 
+
+
+# ------------ Add custom CSS to change sidebar color -------------#
+st.markdown("""
+    <style>
+        /* Change the background color of the sidebar */
+        .css-1d391kg { 
+            background-color: #e08282; /* Change to any color you'd like */
+        }
+
+        /* Change the text color in the sidebar */
+        .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg p {
+            color: #333; /* Adjust the text color */
+        }
+
+        /* Modify the background color of the selectbox */
+        .stSelectbox>div>div>input {
+            background-color: #e08282; /* Change to your desired color */
+        }
+
+        /* Modify the color of the selectbox dropdown */
+        .stSelectbox>div>div>div {
+            background-color: #e08282; /* Dropdown background color */
+        }
+
+        /* Customize the selected option color in the selectbox */
+        .stSelectbox>div>div>div>div>div {
+            color: #333; /* Adjust text color */
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
+
+
+
 # ------------ Create a sidebar for navigation ----------------#
 st.sidebar.header("Navigation")
 section = st.sidebar.selectbox("Choose Analysis Section", [
@@ -20,6 +67,7 @@ section = st.sidebar.selectbox("Choose Analysis Section", [
     "Methods",
     "Company Size & Wellbeing",
     "Income & Wellbeing",
+    "Education & Wellbeing",
     "Life Satisfaction & Stress",
     "Employment Type Analysis",
     "Perceived Health & Stress",
@@ -222,6 +270,90 @@ elif section == "Income & Wellbeing":
     ax.set_title("Relationship Between Life Satisfaction and Income")
     st.pyplot(fig)
 
+# ------------------------- Education -------------------------------#
+elif section == "Education & Wellbeing":
+    st.markdown("## **Education Level & Well-Being (Stress & Life Satisfaction)**")
+
+    # Define education level mapping
+    education_labels = {1: "Elementary", 2: "High School", 3: "University"}
+
+    # Map numerical values to labels
+    df["Education Level"] = df["schooling1to3"].map(education_labels)
+
+    # Stress Analysis
+    st.markdown("### **(A) Stress Levels by Education Level**")
+
+    # Perform ANOVA for Stress
+    stress_groups = [df[df["schooling1to3"] == level]["Stress"] for level in [1, 2, 3]]
+    f_stat_stress, p_value_stress = f_oneway(*stress_groups)
+
+    st.write(f"**F-statistic:** {f_stat_stress:.3f}")
+    st.write(f"**P-value:** {p_value_stress:.5f}")
+
+    if p_value_stress < 0.05:
+        st.success("There is a statistically significant difference in stress levels across education levels.")
+    else:
+        st.info("There is no significant difference in stress levels across education levels.")
+
+    # Boxplot for Stress
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.boxplot(x=df["Education Level"], y=df["Stress"], ax=ax)
+    ax.set_xlabel("Education Level")
+    ax.set_ylabel("Stress")
+    st.pyplot(fig)
+
+    # Life Satisfaction Analysis
+    st.markdown("### **(B) Life Satisfaction by Education Level**")
+
+    # Perform ANOVA for Life Satisfaction
+    life_satisfaction_groups = [df[df["schooling1to3"] == level]["LifeSatisf"] for level in [1, 2, 3]]
+    f_stat_ls, p_value_ls = f_oneway(*life_satisfaction_groups)
+
+    st.write(f"**F-statistic:** {f_stat_ls:.3f}")
+    st.write(f"**P-value:** {p_value_ls:.5f}")
+
+    if p_value_ls < 0.05:
+        st.success("There is a statistically significant difference in life satisfaction across education levels.")
+    else:
+        st.info("There is no significant difference in life satisfaction across education levels.")
+
+    # Boxplot for Life Satisfaction
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.boxplot(x=df["Education Level"], y=df["LifeSatisf"], ax=ax)
+    ax.set_xlabel("Education Level")
+    ax.set_ylabel("Life Satisfaction")
+    st.pyplot(fig)
+
+
+    st.markdown("## **Education Level & Perceived Income**")
+
+    # Define education level mapping
+    education_labels = {1: "Elementary", 2: "High School", 3: "University"}
+
+    # Map numerical values to labels
+    df["Education Level"] = df["schooling1to3"].map(education_labels)
+
+    # ANOVA Test for Income Across Education Levels
+    st.markdown("### **Income Levels by Education Level**")
+
+    # Perform ANOVA for Perceived Income
+    income_groups = [df[df["schooling1to3"] == level]["income1to7"] for level in [1, 2, 3]]
+    f_stat_income, p_value_income = f_oneway(*income_groups)
+
+    st.write(f"**F-statistic:** {f_stat_income:.3f}")
+    st.write(f"**P-value:** {p_value_income:.5f}")
+
+    if p_value_income < 0.05:
+        st.success("There is a statistically significant difference in perceived income across education levels.")
+    else:
+        st.info("There is no significant difference in perceived income across education levels.")
+
+    # Boxplot for Income
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.boxplot(x=df["Education Level"], y=df["income1to7"], ax=ax)
+    ax.set_xlabel("Education Level")
+    ax.set_ylabel("Perceived Income (1 to 7)")
+    st.pyplot(fig)
 
 # ------------------ Life Satisfaction & Stress -------------------- #
 elif section == "Life Satisfaction & Stress":
@@ -479,6 +611,50 @@ elif section == "Current Exercise Habits vs Childhood Sports History":
     else:
         st.info("There is no significant association between childhood sports history and current exercise habits.")
 
+# ------------------- Discussion ------------------#
+elif section == "Discussion":
+    st.markdown("""
+    # **Summary and Discussion of Findings**  
+
+    This study explored various factors influencing stress and life satisfaction, including company size, income, employment type, perceived health, and exercise habits. The analysis yielded several key insights regarding workplace environments, financial well-being, and lifestyle factors.  
+
+    ## **Workplace Environment and Well-Being**  
+    - There was **no significant difference** in **stress levels** or **life satisfaction** between employees in **small and large companies**. This suggests that company size alone may not be a determining factor in workplace stress or overall satisfaction. Other factors, such as workplace culture and work-life balance, might have a greater impact.  
+    - However, a **significant difference** was found between **employees and managers**:  
+    - **Managers reported higher stress levels** than employees, likely due to increased responsibilities.  
+    - **Managers also reported higher life satisfaction**, which may be linked to job autonomy, financial benefits, or career fulfillment.  
+
+    ## **Financial Factors and Well-Being**  
+    - **Income was significantly correlated** with both stress and life satisfaction:  
+    - Higher **income** was associated with **lower stress levels** (*r = -0.182, p < 0.001*).  
+    - Higher **income** was associated with **greater life satisfaction** (*r = 0.209, p < 0.001*).  
+    - While income plays a role, the relatively low correlation values suggest that other factors, such as job satisfaction and personal values, contribute to stress and life satisfaction as well.  
+
+    ## **Interplay Between Stress and Life Satisfaction**  
+    - A **strong negative correlation** was observed between **stress and life satisfaction** (*r = -0.474, p < 0.001*), indicating that individuals experiencing higher stress levels tend to report lower life satisfaction.  
+    - This result highlights the importance of **stress management** in improving overall well-being.  
+
+    ## **Health and Lifestyle Factors**  
+    - **Perceived Health**:  
+    - Individuals who reported **better perceived health** had **lower stress levels** (*r = -0.167, p < 0.001*) and **higher life satisfaction** (*r = 0.224, p < 0.001*).  
+    - This reinforces the well-documented relationship between physical and mental/emotional well-being.  
+    - **Exercise Habits**:  
+    - There were **significant differences** in both **stress levels** (*F = 7.648, p < 0.001*) and **life satisfaction** (*F = 11.926, p < 0.001*) based on **exercise habits**.  
+    - This suggests that **regular physical activity** is associated with **lower stress and greater life satisfaction**.  
+    - **Childhood Sports Participation**:  
+    - A **significant association** was found between **childhood sports participation and current exercise habits** (*χ² = 26.329, p < 0.001*).  
+    - This indicates that early exposure to physical activity may influence **long-term health behaviors**.  
+
+    ## **Conclusion**  
+    These findings emphasize the **multifaceted nature of well-being**, highlighting the complex interactions between **workplace dynamics, financial stability, health, and lifestyle habits**.  
+
+    - While **income and job role** influence **stress and satisfaction**, **personal health perceptions and exercise habits** also play a crucial role.  
+    - The results suggest that **organizations and individuals** may benefit from **policies and behaviors that promote financial security and physical well-being** to enhance overall quality of life.  
+    """)
+
+
+
+
 
 
 # ------------------ Source -------------------- #
@@ -493,4 +669,39 @@ elif section == "Data Source":
 # ------------------ Steps to Reproduce Study -------------------- #
 elif section == "Steps to Reproduce Study":
     # Steps to reproduce
-    st.markdown("#### Steps to reproduce:\n\n---\n\nUse the SWL and PSS (Satisfaction with Life - 5 items and Perceived Stress Scale - 14 items) and ask about childhood and current exercise habits, and workplace employee numbers in 4 categories (up to 10, 11-100, 101-1,000, and over 1,000). If needed, you can combine these into large (> 100) and small (< 100) companies. Collect demographic information such as age, gender, education level (basic/elementary, high school, university), perceived health on a 7-point scale, and perceived income on a 7-point scale. Ask for employment status in two categorical terms: employee or manager. Run chi-square and t-tests for group comparisons. Correlations/regression are feasible if the research question warrants it.")
+    st.markdown("""
+# **Steps to Reproduce the Study**  
+
+To replicate this study, follow these steps for data collection and analysis:  
+
+## **1. Survey Design**  
+Use standardized psychological scales:  
+- **Satisfaction with Life Scale (SWL)** – 5 items  
+- **Perceived Stress Scale (PSS)** – 14 items  
+
+Additionally, collect information on:  
+- **Exercise Habits**: Ask about both **childhood** and **current** exercise habits.  
+- **Workplace Environment**: Categorize **company size** into:  
+  - Up to **10** employees  
+  - **11-100** employees  
+  - **101-1,000** employees  
+  - Over **1,000** employees  
+  - (Optional) Combine into **small** (< 100 employees) and **large** (> 100 employees) categories.  
+
+## **2. Demographic Information**  
+Gather data on:  
+- **Age**  
+- **Gender**  
+- **Education Level** (Basic/Elementary, High School, University)  
+- **Perceived Health** (7-point scale)  
+- **Perceived Income** (7-point scale)  
+- **Employment Status**: Categorize as either **employee** or **manager**.  
+
+## **3. Data Analysis**  
+- Use **chi-square tests** to assess relationships between categorical variables.  
+- Perform **independent t-tests** to compare group differences (e.g., stress levels between employees and managers).  
+- Conduct **correlation analysis** (Pearson’s r) to examine relationships between continuous variables (e.g., stress and income, life satisfaction and perceived health).  
+- **Regression analysis** can be performed if further predictive insights are needed based on the research question.  
+
+These steps will ensure a structured and reproducible approach to studying workplace well-being, financial factors, and health-related behaviors.  
+""")
