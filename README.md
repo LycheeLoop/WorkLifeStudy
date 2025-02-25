@@ -1,19 +1,18 @@
-# 🎈 Blank app template
+# Work-Life Study Analysis
 
-A simple Streamlit app template for you to modify!
+This Streamlit app presents an analysis of various factors influencing employee well-being, including stress levels, life satisfaction, income, education, exercise habits, and perceived health. The study investigates differences between small and large companies, as well as correlations between these factors across different demographics.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Live Demo:
+You can access the live version of the app [here](https://worklifestudy.streamlit.app/).
 
-### How to run it on your own machine
+## Data Source:
+## How to Run:
+1. Clone this repository.
+2. Install the required packages by running `pip install -r requirements.txt`.
+3. Run the app with `streamlit run streamlit_app.py`.
 
-1. Install the requirements
+## Data Source:
+The analysis uses self-reported data on workplace demographics, well-being indicators, and lifestyle habits.
 
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+## License:
+This project is licensed under the MIT License.
