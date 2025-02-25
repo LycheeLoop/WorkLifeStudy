@@ -1,4 +1,8 @@
 streamlit
 openpyxl
+pandas
 scipy
+seaborn
+matplotlib
+requests
 streamlit-lottie
