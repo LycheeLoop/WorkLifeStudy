@@ -4,49 +4,103 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import ttest_ind, pearsonr, f_oneway, chi2_contingency
 
-# Title and Introduction
-st.markdown("# Work, Stress and Life Satisfaction Study\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.")
-
-# Data Source
-st.markdown("### Data Source\n\n---\n\n**Study**: Work, Stress, and Life Satisfaction.\n\n**Institution**: Szechenyi Istvan Egyetem (Hungary).\n\n**Published**: 8 August 2024.\n\n**Categories**: Psychology, Adult, Workplace, Job Stress, Life Satisfaction, Exercise Psychology.\n\nDOI: 10.17632/hsgymx6zf8.2\n\n---\n\n")
 
 
+# ------------ Introduction ----------------#
 
-# Upload dataset 
 df = pd.read_excel("Cleaned_Work_life.xlsx")
 
-
-
-st.markdown("#### Each participant provided responses to the following variables:")
-st.text(f"Columns: {', '.join(df.columns)}")
-
-
-
-# Display the cleaned dataset
-st.markdown("**Cleaned Dataset Preview**:")
-
-st.write(df.head())
-st.markdown("\n\n---\n\n")
-
-
+# Title and Introduction
+st.markdown("# Work, Stress and Life Satisfaction Study\n\n---\n\nThis project analyzes data from a cross-sectional study of 549 participants exploring the relationship between company size, job roles, and well-being in the workplace. Specifically, it examines whether individuals working in larger companies experience higher stress levels and different levels of life satisfaction compared to those in smaller companies. The study also investigates how stress and life satisfaction vary between employees and managers. Additionally, it explores the connection between company size and regular exercise habits, as well as whether adult exercise patterns are linked to childhood exercise habits.\n\n---\n\n\n\n---\n\n")
 
 # ------------ Create a sidebar for navigation ----------------#
 st.sidebar.header("Navigation")
 section = st.sidebar.selectbox("Choose Analysis Section", [
-    "Company Size & Well-Being",
-    "Stress & Income",
+    "Introduction",
+    "Methods",
+    "Company Size & Wellbeing",
+    "Income & Wellbeing",
     "Life Satisfaction & Stress",
     "Employment Type Analysis",
     "Perceived Health & Stress",
     "Exercise Habits & Stress",
-    "Exercise Habits & Life Satisfaction",
-    "Current Exercise Habits vs Childhood Sports History"
+    "Current Exercise Habits vs Childhood Sports History",
+    "Discussion",
+    "Data Source",
+    "Steps to Reproduce Study"
 ])
 
+
+# ------------ Methods ----------------#
+if section == "Methods":
+
+    st.markdown("""
+    # Methods
+
+    This study utilizes the Satisfaction with Life Scale (SWL) and the Perceived Stress Scale (PSS) to assess life satisfaction and stress levels among participants. The SWL consists of five items (`ls1`through`ls5`), while the PSS includes fourteen items (`pss1`through`pss14`).  
+
+    In addition to these psychological measures, participants provided information on their childhood and current exercise habits, as well as workplace characteristics, including company size categorized into four groups:  
+
+    - **Up to 10 employees**  
+    - **11 to 100 employees**  
+    - **101 to 1,000 employees**  
+    - **Over 1,000 employees**  
+
+    If needed, company size may be further grouped into **small (<100 employees)** and **large (>100 employees)** organizations.  
+
+    ## Collected Variables  
+
+    ### Demographics  
+    - **Gender**  
+    - **Age**  
+    - **Education Level** (`schooling1to3`): Basic/elementary, high school, university  
+    - **Perceived Health** (`perceivedhealth1to7`): Rated on a 7-point scale  
+    - **Perceived Income** (`income1to7`): Rated on a 7-point scale  
+
+    ### Employment & Workplace  
+    - **Employment Status** (`JobPositionEmployeeManager`): Employee or manager  
+    - **Company Type** (`GovOrPrivateCo`): Government or private sector  
+    - **Company Location** (`HUorEUorNONEuCo`): Hungary, European Union, or outside the EU  
+    - **Company Size** (`CompanySize4cat`): Categorized as described above  
+
+    ### Exercise & Sports History  
+    - **Childhood Sports Participation** (`Childhood7to16SportsYesNo`)  
+    - **Years of Sports History** (`SportsHistoryYears`)  
+    - **Current Leisure Activity** (`LeisureCompOrNoSport`)  
+    - **Social Support for Sports** (`SportSocSupport1to10ZeroNoSport`): Rated on a 10-point scale  
+
+    ### Psychological Measures  
+    - **Satisfaction with Life Scale (SWL)**: `ls1`, `ls2`, `ls3`, `ls4`, `ls5`  
+    - **Perceived Stress Scale (PSS)**: `pss1`, `pss2`, `pss3`, `pss4`, `pss5`, `pss6`, `pss7`, `pss8`, `pss9`, `pss10`, `pss11`, `pss12`, `pss13`, `pss14`  
+
+    ### Additional Computed Variables  
+    - **Overall Stress Score** (`Stress`)  
+    - **Life Satisfaction Score** (`LifeSatisf`)  
+    - **Sports Group Classification** (`Sportgr`)  
+    - **Company Size Classification** (`CompanySize`)  
+
+    ## Statistical Analysis  
+
+    Chi-square tests and t-tests were conducted to compare groups. Correlation and regression analyses were considered based on the research question.  
+
+    This structured approach ensures a comprehensive analysis of the relationships between workplace factors, exercise habits, demographic characteristics, and psychological well-being.""")
+    
+
+
+
+    # Display the cleaned dataset
+    st.markdown("**Cleaned Dataset Preview**:")
+
+    st.write(df.head())
+    st.markdown("\n\n---\n\n")
+
+
+
+
 # ------------------ Company Size Analysis -------------------- #
-if section == "Company Size & Well-Being":
+elif section == "Company Size & Wellbeing":
     # Analyze company size and well-being with t-test 
-    st.markdown("### (A) Company Size & Well-Being (Stress & Life Satisfaction)")
+    st.markdown("# (A) Company Size & Well-Being (Stress & Life Satisfaction)")
 
     # Separate groups for stress and life satisfaction
     stress_small_companies = df[df['CompanySize'] == 1]['Stress']
@@ -60,9 +114,7 @@ if section == "Company Size & Well-Being":
     # Perform independent t-test for Life Satisfaction
     t_stat_life_satisf, p_value_life_satisf = ttest_ind(life_satisf_small_companies, life_satisf_large_companies, equal_var=False)
 
-    # Display results for Stress and Life Satisfaction in Streamlit
-    st.header("T-Test Results")
-
+    # Display results for Stress and Life Satisfaction
     # Stress results
     st.write("### Stress")
     st.write(f"**T-statistic (Stress):** {t_stat_stress:.3f}")
@@ -119,8 +171,8 @@ if section == "Company Size & Well-Being":
 
 
 # ------------------ Income Analysis -------------------- #
-elif section == "Stress & Income":
-    st.markdown("### (B) Stress & Income Analysis")
+elif section == "Income & Wellbeing":
+    st.markdown("# (B) Income & Wellbeing")
 
     # Compute correlation
     corr_coeff, p_value = pearsonr(df["Stress"], df["income1to7"])
@@ -174,7 +226,7 @@ elif section == "Stress & Income":
 # ------------------ Life Satisfaction & Stress -------------------- #
 elif section == "Life Satisfaction & Stress":
 
-    st.markdown("### Life Satisfaction & Stress")
+    st.markdown("# Life Satisfaction & Stress")
     # Compute correlation
     corr_coeff, p_value = pearsonr(df["Stress"], df["LifeSatisf"])
 
@@ -201,7 +253,7 @@ elif section == "Life Satisfaction & Stress":
 # ------------------ Employment Type Analysis -------------------- #
 elif section == "Employment Type Analysis":
     # Employment type vs Stress
-    st.markdown("### (C) Employment Type Analysis - Stress Levels")
+    st.markdown("# (C) Employment Type Analysis - Stress Levels")
 
     # Split into two groups
     employees = df[df["JobPositionEmployeeManager"] == 1]["Stress"]
@@ -268,7 +320,7 @@ elif section == "Employment Type Analysis":
 # ------------------ Perceived Health vs. Stress levels -------------------- #
 elif section == "Perceived Health & Stress":
     # Perceived Health vs Stress
-    st.markdown("### (D) Perceived Health - Stress Levels")
+    st.markdown("# (D) Perceived Health - Stress Levels")
 
 
 
@@ -343,7 +395,7 @@ elif section == "Perceived Health & Stress":
 # ------------------ Exercise Habits vs. Stress levels -------------------- #
 elif section == "Exercise Habits & Stress":
     # Exercise Habits vs Stress
-    st.markdown("### (E) Exercise Habits - Stress Levels")
+    st.markdown("# (E) Exercise Habits - Stress Levels")
 
     # Boxplot/Violin plot
     st.header("Stress Across Exercise Habits")
@@ -429,12 +481,16 @@ elif section == "Current Exercise Habits vs Childhood Sports History":
 
 
 
+# ------------------ Source -------------------- #
+elif section == "Data Source":
+    # Data Source
+    st.markdown("### Data Source\n\n---\n\n**Study**: Work, Stress, and Life Satisfaction.\n\n**Institution**: Szechenyi Istvan Egyetem (Hungary).\n\n**Published**: 8 August 2024.\n\n**Categories**: Psychology, Adult, Workplace, Job Stress, Life Satisfaction, Exercise Psychology.\n\nDOI: 10.17632/hsgymx6zf8.2\n\n---\n\n")
 
 
 
 
 
 # ------------------ Steps to Reproduce Study -------------------- #
-
-# Steps to reproduce
-st.markdown("#### Steps to reproduce:\n\n---\n\nUse the SWL and PSS (Satisfaction with Life - 5 items and Perceived Stress Scale - 14 items) and ask about childhood and current exercise habits, and workplace employee numbers in 4 categories (up to 10, 11-100, 101-1,000, and over 1,000). If needed, you can combine these into large (> 100) and small (< 100) companies. Collect demographic information such as age, gender, education level (basic/elementary, high school, university), perceived health on a 7-point scale, and perceived income on a 7-point scale. Ask for employment status in two categorical terms: employee or manager. Run chi-square and t-tests for group comparisons. Correlations/regression are feasible if the research question warrants it.")
+elif section == "Steps to Reproduce Study":
+    # Steps to reproduce
+    st.markdown("#### Steps to reproduce:\n\n---\n\nUse the SWL and PSS (Satisfaction with Life - 5 items and Perceived Stress Scale - 14 items) and ask about childhood and current exercise habits, and workplace employee numbers in 4 categories (up to 10, 11-100, 101-1,000, and over 1,000). If needed, you can combine these into large (> 100) and small (< 100) companies. Collect demographic information such as age, gender, education level (basic/elementary, high school, university), perceived health on a 7-point scale, and perceived income on a 7-point scale. Ask for employment status in two categorical terms: employee or manager. Run chi-square and t-tests for group comparisons. Correlations/regression are feasible if the research question warrants it.")
